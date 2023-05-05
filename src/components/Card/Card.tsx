@@ -10,13 +10,15 @@ type CardProps = {
     content: {
         text: string;
         image: string
-    } 
+    },
+    children?: JSX.Element 
 }
 
 export const Card = (props: CardProps) => {
-    const {author, content} = props; 
+    const {author, content, children} = props; 
     
     return <div className="wrapper">
+        
         <Profile name={author.name} image={author.image} checked={author.checked} />
         <div className='text'>
             {content.text}
@@ -24,5 +26,6 @@ export const Card = (props: CardProps) => {
         <div className='image'>
             <img src={content.image}></img>
         </div>
+        {children}
     </div>
   }
