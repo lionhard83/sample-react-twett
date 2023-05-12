@@ -36,3 +36,30 @@
     transform: rotate(360deg);
   }
 }
+td {
+  border: solid 1px red;
+  width: 100px;
+  height: 100px;
+}
+
+tr {
+  border: solid 2px blue;
+  width: 100px;
+  height: 100px;
+}
+.cell {
+  height: 50px;
+  width: 50px;
+  background-color: #999;
+  display: inline-block;
+}
+.grid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+div > div {
+  padding: 10px;
+  background-color: #ccc;
+}

@@ -1,75 +1,81 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import logo from './logo.svg';
 import './App.css';
-import axios from 'axios';
-import { Card } from './components/Card/Card';
-const apiKey = '4cfa8ac84f434a4d8985a24296c8e965';
+const ronaldo = 'https://cdn.calciomercato.com/images/2023-02/ronaldo.alnassr.2022.23.gol.1400x840.jpg';
+const messi = 'https://static.open.online/wp-content/uploads/2023/05/messi-1152x768.jpg'
 
 
-export type Product = {
-  title: string;
-  description: string;
-  category: string;
-  image: string;
-  id: number;
-  rating: {
-    count: number;
-    rate: number;
-  }
-}
 
-export type Article = {
-  source: {
-    id: number;
-    name: string;
-  }
-  author: string;
-  title: string;
-  url: string;
-  description: string;
-  urlToImage: string;
-  content: string;
-}
+type Option =  'X' | 'O' | '';
 
 // componenti
 const App = () => {
-  const [textInInput, setTextInInput] = useState('')
-  const [textToSearch, setTextToSearch] = useState('tesla');
-  const [articles, setArticles] = useState<Article[]>([]);
 
+  const x = useRef<HTMLInputElement>(null);
+  const image = useRef<HTMLImageElement>(null);
+
+  const [turn, setTurn] = useState<'X' | 'O'>('X');
+  const [winner, setWinner] = useState<Option>('');
+  const [grid, setGrid] = useState<Option[][]>([['','',''], ['','',''], ['','','']])
+  
+  const showPassword = () => {
+    x.current!.type = x.current!.type === 'password' ?  'text' : 'password';
+  }
+
+
+  const handleClick = (index1: number, index2: number) => {
+    
+
+    if (winner || grid[index1][index2]) return;
+    grid[index1][index2] = turn;
+    setGrid([...grid]);
+
+  }
+  
   useEffect(() => {
-    console.log("sto invocando questo use effect");
-  })
+    if (checkWinner()) {
+      setWinner(turn);
+    } else {
+      setTurn(turn === 'X' ? 'O' : 'X');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [grid])
 
-  useEffect(() => {
-    setArticles([]);
-    axios.get<{articles: Article[]}>(`https://newsapi.org/v2/everything?q=${textToSearch}&from=2023-04-05&sortBy=publishedAt&apiKey=${apiKey}`)
-    .then((res) => {
-      setArticles(res.data.articles);
-    })
-  }, [textToSearch]);
 
+  const reset = () => {
+    setGrid([['','',''], ['','',''], ['','','']]);
+    setWinner('');
+    setTurn('X');
+  }
+
+  const checkWinner = () => 
+        (grid[0][0] && grid[0][0] === grid[0][1] && grid[0][1] === grid[0][2]) || 
+        (grid[1][0] && grid[1][0] === grid[1][1] && grid[1][1] === grid[1][2]) || 
+        (grid[2][0] && grid[2][0] === grid[2][1] && grid[2][1] === grid[2][2]) ||
+
+        (grid[0][0] && grid[0][0] === grid[1][0] && grid[1][0] === grid[2][0]) || 
+        (grid[0][1] && grid[0][1] === grid[1][1] && grid[1][1] === grid[2][1]) || 
+        (grid[0][2] && grid[0][2] === grid[1][2] && grid[1][2] === grid[2][2]) ||
+
+        (grid[0][0] && grid[0][0] === grid[1][1] && grid[1][1] === grid[2][2]) || 
+        (grid[0][2] && grid[0][2] === grid[1][1] && grid[1][1] === grid[2][0])
+
+  
   return (
-    <div className="App">
-      <input onChange={(event) => {setTextInInput(event.target.value)}} />
-      <button onClick={() => { setTextToSearch(textInInput) }} >Cerca</button>
-      {articles.map(item => <Card author={{name: item.author, image: item.urlToImage, checked: true}} content={{text: item.description, image: item.urlToImage}}  />)}
+    <>
+      <input type='password' ref={x} ></input>
+      <img ref={image} style={{maxHeight: '200px'}} src={ronaldo}></img>
+      <button onClick={() => image.current!.src = image.current!.src === ronaldo ? messi : ronaldo} >showPassword</button>
+      <button onClick={() => x.current!.focus()} >Focus</button>
+      <button onClick={reset}>Reset</button>
+      {!winner && <p>The turn is for: {turn}</p>}
+      {winner && <p>The winner is : {winner}</p>}
+      <div className="grid">
+        {grid.map((item, index1) => item.map((subItem, index2) => <div key={`${index1}-${index2}`} onClick={() => {handleClick(index1, index2)}}>_{subItem}_</div>))} 
     </div>
+    </>
+    
   );
 }
-
-/*
-{news.map(item => {
-          return (
-          <Card author={item.author} content={item.content} >
-            <>
-              <p>Pippo</p>
-              <p>Ciao</p>
-            </>
-            </Card>
-          )
-        }
-        )}
-        */
 
 export default App;
